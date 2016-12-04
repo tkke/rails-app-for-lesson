@@ -1,28 +1,20 @@
 class FavoritesController < ApplicationController
+	before_action :authenticate_user!
 
 	def create
-		# tweetのレコード１件を取得し、インスタンス変数に格納
-
-		# 格納したレコードを元にログインしているユーザーのfavoritesインスタンスを生成
-
-		# 生成したインスタンスを保存
-		if 
-		# tweets#indexへリダイレクト
-
+		@tweet = Tweet.find(params[:tweet_id])
+		@favorite = current_user.favorites.build(tweet: @tweet)
+		if @favorite.save
+		  redirect_to tweets_path, notice: "お気に入りに登録しました"
 		else
-		# tweets#indexへリダイレクト
-
+			redirect_to tweets_path, alert: "お気に入りに登録できませんでした"
 		end
 	end
 
 	def destroy
-		#ログインしているユーザーに紐付いたfavoritesの中からtweet_idが等しいものを１件取得
-
-		# destroyメソッドで削除
-
-		#  tweets#indexへリダイレクト
-
+		@favorite = current_user.favorites.find_by!(tweet_id: params[:tweet_id])
+		@favorite.destroy
+		redirect_to tweets_url, notice: "お気に入りを解除しました"
 	end
 
-
-# 発展課題
+end

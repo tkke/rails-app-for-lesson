@@ -36,7 +36,15 @@
     <nav id="sidebar-wrapper">
         <ul class="sidebar-nav">
             <a id="menu-close" href="#" class="btn btn-light btn-lg pull-right toggle"><i class="fa fa-times"></i></a>
-            <li><%= link_to "ログアウト", destroy_user_session_path %></li>
+            <% if signed_in? %>
+              <li><%= link_to "トップページ", tweets_path %></li>
+              <li><%= link_to "マイページ", user_path(current_user.id) %></li>
+              <li><%= link_to "設定", edit_user_registration_path %></li>
+              <li><%= link_to "ログアウト", destroy_user_session_path, method: :delete %></li>
+            <%else%>
+              <li><%= link_to "サインアップ", new_user_registration_path %></li>
+              <li><%= link_to "ログイン", new_user_session_path %></li>
+            <%end%>
         </ul>
     </nav>
 
@@ -172,4 +180,3 @@
 </body>
 
 </html>
-
