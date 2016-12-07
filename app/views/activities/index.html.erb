@@ -59,9 +59,9 @@
               <p><%= render 'tweets/tag_list', tag_list: Tweet.find(tweet.tweet_id).interest_list %></p>
               <div class="content-footer">
                 <% if Tweet.find(tweet.tweet_id).favorited_by? current_user %>
-                  <%= link_to "⭐️", tweet_favorites_path(Tweet.find(tweet.tweet_id)), method: :delete %><%= tweet.favorites.count %>
+                  <%= link_to "⭐️", tweet_favorites_path(Tweet.find(tweet.tweet_id)), method: :delete %><%= Tweet.find(tweet.tweet_id).favorites.count %>
                 <% else %>
-                  <%= link_to "☆", tweet_favorites_path(Tweet.find(tweet.tweet_id)), method: :post %><%= tweet.favorites.count %>
+                  <%= link_to "☆", tweet_favorites_path(Tweet.find(tweet.tweet_id)), method: :post %><%= Tweet.find(tweet.tweet_id).favorites.count %>
                 <% end %>
                 <%if current_user.id == tweet.user.id %>
                   &emsp;&emsp;<%= link_to '削除', Tweet.find(tweet.tweet_id), method: :delete, data: { confirm: '本当に削除しますか？' } %>
