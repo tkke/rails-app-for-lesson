@@ -1,8 +1,9 @@
 class TweetsController < ApplicationController
   before_action :authenticate_user!
   def index
-    @tweets = Tweet.order(id: :desc).page(params[:page]).per(5)
-    @tweet = Tweet.new
+    @tweets = Tweet.order(id: :desc).page(params[:page])
+    @tweet  = Tweet.new
+    @users  = User.all
   end
 
   def create
@@ -12,7 +13,6 @@ class TweetsController < ApplicationController
     redirect_to tweets_path
   end
 
-
   def destroy
     @tweet = Tweet.find(params[:id])
     @tweet.destroy
@@ -21,6 +21,6 @@ class TweetsController < ApplicationController
 
   private
     def tweet_params
-      params.require(:tweet).permit(:body, :user_id)
+      params.require(:tweet).permit(:body, :user_id, :image, :interest_list)
     end
 end

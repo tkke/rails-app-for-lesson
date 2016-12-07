@@ -2,7 +2,7 @@ class FavoritesController < ApplicationController
 	before_action :authenticate_user!
 
 	def create
-		@tweet = Tweet.find(params[:tweet_id])
+		@tweet    = Tweet.find(params[:tweet_id])
 		@favorite = current_user.favorites.build(tweet: @tweet)
 		if @favorite.save
 		  redirect_to tweets_path, notice: "お気に入りに登録しました"

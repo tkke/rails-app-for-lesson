@@ -37,8 +37,11 @@
         <ul class="sidebar-nav">
             <a id="menu-close" href="#" class="btn btn-light btn-lg pull-right toggle"><i class="fa fa-times"></i></a>
             <% if signed_in? %>
-              <li><%= link_to "トップページ", tweets_path %></li>
+              <li><%= link_to "ホーム", tweets_path %></li>
+              <li><%= link_to "アクティビティ", activities_index_path %></li>
+              <li><%= link_to "トレンド", trends_index_path %></li>
               <li><%= link_to "マイページ", user_path(current_user.id) %></li>
+              <li><%= link_to "ユーザー 一覧", users_path %></li>
               <li><%= link_to "設定", edit_user_registration_path %></li>
               <li><%= link_to "ログアウト", destroy_user_session_path, method: :delete %></li>
             <%else%>

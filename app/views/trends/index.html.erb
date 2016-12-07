@@ -1,0 +1,61 @@
+<div id="tweets-content">
+  <div class="row">
+    <div class="col-sm-4 left-content">
+      <% if signed_in? %>
+      <!-- ログインユーザのEメールを表示 -->
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <h2> <strong> Trends </strong> </h2>
+            <div class="user">
+              <span class="user-name"> <strong> <%= current_user.email %> </strong> </span>
+            </div>
+            <!-- つぶやき関連の数値 -->
+            <div class="user-activity">
+              <div class="row">
+                <div class="col-xs-6 tweets-num text-center">
+                  <div class="text"> 総つぶやき数 </div>
+                  <div class="num"> <%= Tweet.count %> </div>
+                </div>
+                <div class="col-xs-6 tweets-num text-center">
+                  <div class="text"> あなたのつぶやき </div>
+                  <div class="num"> <%= Tweet.where(user_id: current_user.id).count %> </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- 投稿欄 -->
+          <%= form_for(@tweet) do |f| %>
+            <div class="form-group new-tweet">
+              <%= f.text_area :body %>
+              <%= f.file_field :image %>
+              <p>タグ：<%= text_field_tag 'tweet[interest_list]', @tweet.interest_list.join(',') %></p>
+              <%= f.submit %>
+            </div>
+          <%end%>
+          <div class="user-info">
+            <% if notice %>
+              <div class="alert alert-info"><%=notice%></div>
+            <% end %>
+          </div>
+        </div>
+      <%end%>
+    </div>
+
+    <!-- ↓ここから右カラム -->
+    <div class="col-sm-8 right-content">
+      <div class="list-group">
+        <% @trends.each do |trend| %>
+          <div class="list-group-item">
+            <h4 class="user">
+              <strong> <%= trend %> </strong>
+              <div class="clear"></div>
+            </h4>
+            <div class="tweet-content">
+              <div class="content-footer">
+               </div>
+            </div>
+          </div>
+        <%end%>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,81 @@
+<div id="tweets-content">
+  <div class="row">
+    <div class="col-sm-4 left-content">
+      <% if signed_in? %>
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <h2><strong>Activities</strong></h2>
+            <!-- ログインユーザのEメールを表示 -->
+            <div class="user">
+              <span class="user-name"> <strong> <%= current_user.email %> </strong> </span>
+            </div>
+            <!-- お気に入りの関連数値 -->
+            <div class="user-activity">
+              <div class="row">
+                <div class="col-xs-6 tweets-num text-center">
+                  <div class="text"> 総お気に入り数 </div>
+                  <div class="num"> <%= @total_fav %> </div>
+                </div>
+                <div class="col-xs-6 tweets-num text-center">
+                  <div class="text"> あなたのお気に入り </div>
+                  <div class="num"> <%= @your_fav %> </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- 投稿欄 -->
+          <%= form_for(@tweet) do |f| %>
+            <div class="form-group new-tweet">
+              <%= f.text_area :body %>
+              <%= f.file_field :image %>
+              <p>タグ：<%= text_field_tag 'tweet[interest_list]', @tweet.interest_list.join(',') %></p>
+              <%= f.submit %>
+            </div>
+          <%end%>
+          <div class="user-info">
+            <% if notice %>
+              <div class="alert alert-info"><%=notice%></div>
+            <% end %>
+          </div>
+        </div>
+      <%end%>
+    </div>
+
+    <!-- ↓ここから右カラム -->
+    <div class="col-sm-8 right-content">
+      <div class="list-group">
+        <% @tweets.each do |tweet| %>
+          <div class="list-group-item">
+            <h4 class="user">
+              <span class="user-name"> <strong> <%= link_to tweet.user.email, user_path(tweet.user_id) %> </strong> </span>
+              <span class="time pull-right"> <%= distance_of_time_in_words_to_now(Tweet.find(tweet.tweet_id).created_at)%> </span>
+              <div class="clear"></div>
+            </h4>
+            <div class="tweet-content">
+              <p><%= Tweet.find(tweet.tweet_id).body %></p>
+              <% if Tweet.find(tweet.tweet_id).image? %>
+                <p><%=  image_tag Tweet.find(tweet.tweet_id).image.url%></p>
+              <% end %>
+              <p><%= render 'tweets/tag_list', tag_list: Tweet.find(tweet.tweet_id).interest_list %></p>
+              <div class="content-footer">
+                <% if Tweet.find(tweet.tweet_id).favorited_by? current_user %>
+                  <%= link_to "⭐️", tweet_favorites_path(Tweet.find(tweet.tweet_id)), method: :delete %><%= tweet.favorites.count %>
+                <% else %>
+                  <%= link_to "☆", tweet_favorites_path(Tweet.find(tweet.tweet_id)), method: :post %><%= tweet.favorites.count %>
+                <% end %>
+                <%if current_user.id == tweet.user.id %>
+                  &emsp;&emsp;<%= link_to '削除', Tweet.find(tweet.tweet_id), method: :delete, data: { confirm: '本当に削除しますか？' } %>
+                <%else%>
+                  <% if User.find(tweet.user_id).followed_by? current_user %>
+                    &emsp;&emsp;<%= link_to "フォロー解除", user_relationships_path(User.find(tweet.user_id)), method: :delete %>
+                  <% else %>
+                    &emsp;&emsp;<%= link_to "フォロー", user_relationships_path(User.find(tweet.user_id)), method: :tweet %>
+                  <% end %>  
+                <%end%>
+              </div>
+            </div>
+          </div>
+        <%end%>
+    </div>
+  </div>
+</div>

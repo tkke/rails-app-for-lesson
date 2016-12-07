@@ -1,110 +1,86 @@
 <div id="tweets-content">
   <div class="row">
     <div class="col-sm-4 left-content">
-      <!-- #* ↓singed_in?を使ってログインした人しか見れないようにしましょう -->
       <% if signed_in? %>
+      <!-- ユーザのEメールを表示 -->
         <div class="panel panel-default">
           <div class="panel-body">
+            <h2> <strong> Home </strong> </h2>
             <div class="user">
               <span class="user-name">
-                <strong>
-                  <!-- ## ↓current_userのemailを表示しよう -->
                   <strong> <%= current_user.email %> </strong>
-                </strong>
               </span>
             </div>
 
+            <!-- つぶやき関連の数値 -->
             <div class="user-activity">
               <div class="row">
                 <div class="col-xs-6 tweets-num text-center">
-                  <div class="text">
-                    総つぶやき数
-                  </div>
-                  <div class="num">
-                    <!-- ↓全てのツイートの数を数える -->
-                    <!--#* わからなければ「rails count」で検索！ -->
-                    <%= Tweet.count %>
-                  </div>
+                  <div class="text"> 総つぶやき数 </div>
+                  <div class="num"> <%= Tweet.count %> </div>
                 </div>
                 <div class="col-xs-6 tweets-num text-center">
-                  <div class="text">
-                    あなたのつぶやき
-                  </div>
-                  <div class="num">
-                    <!-- ↓current_userのツイートの数を数える -->
-                    <!-- わからなければ「rails count」で検索！ -->
-                    <%= Tweet.where(user_id: current_user.id).count %>
-                  </div>
+                  <div class="text"> あなたのつぶやき </div>
+                  <div class="num"> <%= Tweet.where(user_id: current_user.id).count %> </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- ## ↓form_forを使ってつぶやくためのフォームを作る -->
+          <!-- 投稿欄 -->
           <%= form_for(@tweet) do |f| %>
             <div class="form-group new-tweet">
-              <!--## ↓text_areaを生成 -->
               <%= f.text_area :body %>
-              <!--## ↓submitを生成 -->
+              <%= f.file_field :image %>
+              <p>タグ：<%= text_field_tag 'tweet[interest_list]', @tweet.interest_list.join(',') %></p>
               <%= f.submit %>
             </div>
-          <%end%>
-          <!--## ↑form_forをendで閉じる -->
+          <% end %>
           <div class="user-info">
             <% if notice %>
-              <!-- ここでflashを表示してます -->
-              <div class="alert alert-info"><%=notice%></div>
+              <div class="alert alert-info"> <%= notice %> </div>
             <% end %>
           </div>
         </div>
-      <%end%>
-      <!--## ↑signed_in?のif文をendで閉じる -->
+      <% end %>
     </div>
 
     <!-- ↓ここから右カラム -->
     <div class="col-sm-8 right-content">
       <div class="list-group">
-        <!--## ↓eachメソッドを用いてツイート一覧を表示しましょう -->
         <% @tweets.each do |tweet| %>
           <div class="list-group-item">
             <h4 class="user">
-              <span class="user-name">
-                <strong>
-                  <!--#* ↓ツイートに紐付いたUserのemailの表示 -->
-                  <%= tweet.user.email %>
-                </strong>
-              </span>
-              <span class="time pull-right">
-                <!--***** ↓ツイートした時間の表示をしてます。 -->
-                <%= distance_of_time_in_words_to_now(tweet.created_at)%>
-              </span>
+              <span class="user-name"> <strong> <%= link_to tweet.user.email, user_path(tweet.user.id) %> </strong> </span>
+              <span class="time pull-right"> <%= distance_of_time_in_words_to_now(tweet.created_at)%> </span>
               <div class="clear"></div>
             </h4>
             <div class="tweet-content">
-              <p>
-                <!-- ↓ツイートのcontentを表示 -->
-                <%= tweet.body %>
-              </p>
-              <!--## ↓お気に入りボタンの実装（発展課題） -->
+              <p> <%= tweet.body %> </p>
+              <% if tweet.image? %>
+                <p> <%=  image_tag tweet.image.url%> </p>
+              <% end %>
+              <p> <%= render 'tweets/tag_list', tag_list: tweet.interest_list %> </p>
               <div class="content-footer">
-                <!--## ↓favorited_by?を使ってif文でデータの状態によって表示するテキストを変えましょう -->
-                  <% if tweet.favorited_by? current_user %>
-                    <!--## ↓お気に入り解除ボタンの設置 -->
-                    <%= link_to "⭐️", tweet_favorites_path(tweet), method: :delete %>
+                <% if tweet.favorited_by? current_user %>
+                  <%= link_to "⭐️", tweet_favorites_path(tweet), method: :delete %><%= tweet.favorites.count %>
+                <% else %>
+                  <%= link_to "☆", tweet_favorites_path(tweet), method: :post %><%= tweet.favorites.count %>
+                <% end %>
+                <%if current_user.id == tweet.user.id %>
+                  &emsp;&emsp;<%= link_to '削除', tweet, method: :delete, data: { confirm: '本当に削除しますか？' } %>
+                <% else %>
+                  <% if tweet.user.followed_by? current_user %>
+                    &emsp;&emsp;<%= link_to "フォロー解除", user_relationships_path(tweet.user), method: :delete %>
                   <% else %>
-                    <!--## ↓お気に入り登録するボタンの設置 -->
-                    <%= link_to "☆", tweet_favorites_path(tweet), method: :post %>
+                    &emsp;&emsp;<%= link_to "フォロー", user_relationships_path(tweet.user), method: :tweet %>
                   <% end %>
-                  <%if current_user.id == tweet.user.id %>
-                    <%= link_to '削除', tweet, method: :delete, data: { confirm: 'Are you sure?' } %>
-                  <%end%>
+                <% end %>
                </div>
-              <!--## ↑お気に入りボタンの実装（発展課題） -->
             </div>
           </div>
-        <%end%>
-        <!--## ↑each終わり  endで閉じる -->
-      <!--## ↓ページネーションするための記述をしてください -->
+        <% end %>
+
       <%= paginate @tweets %>
     </div>
   </div>
